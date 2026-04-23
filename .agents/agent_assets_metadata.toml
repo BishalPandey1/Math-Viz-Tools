@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "XLoRiYmitAyM70_6FFKnR"
+uri = "file://exports/math-viz-source.tar.gz"
+type = "unspecified"
+title = "Math Visualizer — Source Code"
