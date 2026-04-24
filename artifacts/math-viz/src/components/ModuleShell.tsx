@@ -29,13 +29,13 @@ export function ModuleShell({
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
-        <aside className="space-y-5 rounded-xl bg-card border border-card-border p-5 shadow-sm h-fit lg:sticky lg:top-6">
+        <aside className="glass space-y-5 rounded-xl p-5 h-fit lg:sticky lg:top-24">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Parameters</h3>
           {controls}
         </aside>
 
         <div className="space-y-4 min-w-0">
-          {plot}
+          <div className="glass-soft rounded-xl p-2">{plot}</div>
           {insights}
         </div>
       </div>
@@ -45,7 +45,7 @@ export function ModuleShell({
 
 export function InsightCard({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-xl bg-card border border-card-border p-5 shadow-sm">
+    <div className="glass rounded-xl p-5">
       <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Live insights</h4>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
         {children}
@@ -56,7 +56,7 @@ export function InsightCard({ children }: { children: ReactNode }) {
 
 export function Stat({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
-    <div className="rounded-lg bg-muted/50 px-3 py-2.5">
+    <div className="glass-stat rounded-lg px-3 py-2.5">
       <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
       <div className="font-mono text-sm font-semibold tabular-nums" style={{ color: accent }}>{value}</div>
     </div>
@@ -118,8 +118,8 @@ export function EditableStat({
 
   return (
     <div
-      className={`group rounded-lg bg-muted/50 px-3 py-2.5 transition-colors ${
-        editing ? "ring-2 ring-primary/50 bg-card" : "cursor-pointer hover:bg-muted"
+      className={`group glass-stat rounded-lg px-3 py-2.5 transition-all ${
+        editing ? "ring-2 ring-primary/50" : "cursor-pointer hover:brightness-110"
       }`}
       onClick={() => !editing && setEditing(true)}
       title={hint ?? "Click to edit"}

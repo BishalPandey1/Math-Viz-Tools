@@ -56,8 +56,8 @@ function NavGroup({
     <div
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      className={`rounded-xl border transition-colors ${
-        open ? "bg-card border-card-border shadow-sm" : "bg-transparent border-transparent hover-elevate"
+      className={`rounded-xl transition-all ${
+        open ? "glass" : "bg-transparent border border-transparent hover-elevate"
       }`}
     >
       <div className="flex items-center justify-between px-3 py-2.5 cursor-pointer select-none">
@@ -107,7 +107,7 @@ function ThemeToggle({ theme, onToggle }: { theme: "light" | "dark"; onToggle: (
     <button
       onClick={onToggle}
       aria-label="Toggle dark mode"
-      className="fixed bottom-5 left-5 z-40 group flex items-center gap-2.5 pl-3 pr-4 h-11 rounded-full bg-card border border-card-border shadow-lg hover-elevate transition-all"
+      className="fixed bottom-5 left-5 z-40 group flex items-center gap-2.5 pl-3 pr-4 h-11 rounded-full glass hover-elevate transition-all"
     >
       <span className="relative w-7 h-7 rounded-full grid place-items-center bg-primary text-primary-foreground overflow-hidden">
         <Sun
@@ -146,8 +146,13 @@ function Home() {
   const groups = Array.from(new Set(NAV.map((n) => n.group)));
 
   return (
-    <div className="min-h-screen w-full bg-background text-foreground">
-      <header className="border-b border-border bg-card/60 backdrop-blur-sm sticky top-0 z-30">
+    <div className="relative min-h-screen w-full bg-background text-foreground overflow-x-hidden">
+      <div className="aurora-bg" aria-hidden>
+        <div className="blob blob-1" />
+        <div className="blob blob-2" />
+      </div>
+      <div className="relative z-10">
+      <header className="glass-header sticky top-0 z-30">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-primary text-primary-foreground grid place-items-center font-bold text-base shadow-sm">∫</div>
@@ -181,7 +186,7 @@ function Home() {
             <ActiveComponent />
 
             <section id="about" className="mt-12 pt-8 border-t border-border">
-              <div className="rounded-2xl bg-gradient-to-br from-primary/5 via-accent/5 to-transparent border border-card-border p-6 lg:p-8">
+              <div className="glass rounded-2xl p-6 lg:p-8">
                 <h3 className="text-lg font-semibold mb-2">About this project</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-3xl">
                   Mathematics is full of abstract ideas that are hard to grasp from static diagrams alone. This tool lets you
@@ -191,19 +196,19 @@ function Home() {
                   matrices transform space.
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 text-sm">
-                  <div className="rounded-lg bg-card border border-card-border p-3">
+                  <div className="glass-stat rounded-lg p-3">
                     <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Modules</div>
                     <div className="font-semibold text-lg">{NAV.length}</div>
                   </div>
-                  <div className="rounded-lg bg-card border border-card-border p-3">
+                  <div className="glass-stat rounded-lg p-3">
                     <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Areas covered</div>
                     <div className="font-semibold text-lg">{groups.length}</div>
                   </div>
-                  <div className="rounded-lg bg-card border border-card-border p-3">
+                  <div className="glass-stat rounded-lg p-3">
                     <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Real-time</div>
                     <div className="font-semibold text-lg">Yes</div>
                   </div>
-                  <div className="rounded-lg bg-card border border-card-border p-3">
+                  <div className="glass-stat rounded-lg p-3">
                     <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Open & free</div>
                     <div className="font-semibold text-lg">Yes</div>
                   </div>
@@ -214,6 +219,7 @@ function Home() {
         </div>
       </div>
 
+      </div>
       <ThemeToggle theme={theme} onToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))} />
     </div>
   );

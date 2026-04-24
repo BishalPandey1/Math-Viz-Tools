@@ -238,3 +238,102 @@
     radial-gradient(circle at 1px 1px, hsl(var(--border)) 1px, transparent 0);
   background-size: 24px 24px;
 }
+
+/* ---------- Glassmorphism ---------- */
+.glass {
+  background-color: hsl(var(--card) / 0.55);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid hsl(var(--card-border) / 0.55);
+  box-shadow:
+    inset 0 1px 0 0 hsl(0 0% 100% / 0.35),
+    0 10px 30px -12px hsl(220 40% 20% / 0.18),
+    0 4px 12px -4px hsl(220 40% 20% / 0.10);
+}
+.dark .glass {
+  background-color: hsl(var(--card) / 0.45);
+  border: 1px solid hsl(0 0% 100% / 0.08);
+  box-shadow:
+    inset 0 1px 0 0 hsl(0 0% 100% / 0.06),
+    0 10px 30px -12px hsl(0 0% 0% / 0.55),
+    0 4px 12px -4px hsl(0 0% 0% / 0.40);
+}
+
+.glass-soft {
+  background-color: hsl(var(--card) / 0.35);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid hsl(var(--card-border) / 0.4);
+}
+.dark .glass-soft {
+  background-color: hsl(var(--card) / 0.30);
+  border: 1px solid hsl(0 0% 100% / 0.06);
+}
+
+.glass-stat {
+  background-color: hsl(0 0% 100% / 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid hsl(220 13% 91% / 0.55);
+}
+.dark .glass-stat {
+  background-color: hsl(220 30% 15% / 0.45);
+  border: 1px solid hsl(0 0% 100% / 0.06);
+}
+
+.glass-header {
+  background-color: hsl(var(--background) / 0.55);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+}
+.dark .glass-header {
+  background-color: hsl(var(--background) / 0.55);
+  border-bottom: 1px solid hsl(0 0% 100% / 0.06);
+}
+
+/* ---------- Aurora background orbs ---------- */
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.aurora-bg::before,
+.aurora-bg::after,
+.aurora-bg > .blob {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.55;
+  will-change: transform;
+}
+.aurora-bg::before {
+  width: 520px; height: 520px;
+  top: -180px; left: -120px;
+  background: radial-gradient(circle, hsl(221 83% 65%) 0%, transparent 70%);
+}
+.aurora-bg::after {
+  width: 600px; height: 600px;
+  bottom: -200px; right: -160px;
+  background: radial-gradient(circle, hsl(262 83% 70%) 0%, transparent 70%);
+}
+.aurora-bg .blob-1 {
+  width: 400px; height: 400px;
+  top: 30%; right: 10%;
+  background: radial-gradient(circle, hsl(199 89% 70%) 0%, transparent 70%);
+  opacity: 0.35;
+}
+.aurora-bg .blob-2 {
+  width: 360px; height: 360px;
+  bottom: 20%; left: 15%;
+  background: radial-gradient(circle, hsl(330 80% 70%) 0%, transparent 70%);
+  opacity: 0.30;
+}
+.dark .aurora-bg::before { opacity: 0.30; }
+.dark .aurora-bg::after { opacity: 0.30; }
+.dark .aurora-bg .blob-1 { opacity: 0.20; }
+.dark .aurora-bg .blob-2 { opacity: 0.18; }
+
