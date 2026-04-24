@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plot, FunctionCurve, PointDot, VLine, HLine, Label } from "@/lib/plot";
 import { SliderControl } from "@/components/SliderControl";
-import { ModuleShell, InsightCard, Stat } from "@/components/ModuleShell";
+import { ModuleShell, InsightCard, Stat, EditableStat } from "@/components/ModuleShell";
 
 export function LinearModule() {
   const [m, setM] = useState(1);
@@ -40,10 +40,42 @@ export function LinearModule() {
       insights={
         <InsightCard>
           <Stat label="Equation" value={`y = ${m.toFixed(2)}x + ${b.toFixed(2)}`} accent="hsl(var(--chart-1))" />
-          <Stat label="Slope (m)" value={m.toFixed(3)} />
-          <Stat label="Angle with x-axis" value={`${angleDeg.toFixed(2)}°`} />
-          <Stat label="Y-Intercept" value={`(0, ${b.toFixed(2)})`} accent="hsl(var(--accent))" />
-          <Stat label="X-Intercept" value={Number.isFinite(xIntercept) ? `(${xIntercept.toFixed(2)}, 0)` : "none (m = 0)"} accent="hsl(var(--chart-3))" />
+          <EditableStat
+            label="Slope (m)"
+            value={m}
+            onChange={setM}
+            min={-50}
+            max={50}
+            format={(v) => v.toFixed(3)}
+            hint="Click to type a new slope"
+          />
+          <EditableStat
+            label="Angle with x-axis"
+            value={angleDeg}
+            onChange={(deg) => setM(Math.tan((deg * Math.PI) / 180))}
+            min={-89}
+            max={89}
+            suffix="°"
+            hint="Type an angle; the slope updates"
+          />
+          <EditableStat
+            label="Y-Intercept (b)"
+            value={b}
+            onChange={setB}
+            min={-100}
+            max={100}
+            accent="hsl(var(--accent))"
+            hint="Click to type a new y-intercept"
+          />
+          <EditableStat
+            label="X-Intercept"
+            value={Number.isFinite(xIntercept) ? xIntercept : 0}
+            onChange={(xi) => {
+              if (m !== 0) setB(-m * xi);
+            }}
+            accent="hsl(var(--chart-3))"
+            hint={m === 0 ? "Set a non-zero slope first" : "Type a new x-intercept; b updates"}
+          />
           <Stat label="Δy / Δx" value={`${m.toFixed(2)} / 1`} />
         </InsightCard>
       }

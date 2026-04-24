@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plot, FunctionCurve, PointDot, VLine, Label } from "@/lib/plot";
 import { SliderControl } from "@/components/SliderControl";
-import { ModuleShell, InsightCard, Stat } from "@/components/ModuleShell";
+import { ModuleShell, InsightCard, Stat, EditableStat } from "@/components/ModuleShell";
 
 type FnKey = "poly" | "sin" | "exp" | "abs" | "cubic";
 
@@ -69,10 +69,11 @@ export function DerivativeModule() {
       insights={
         <InsightCard>
           <Stat label="Function" value={FUNCTIONS[fnKey].expr} accent="hsl(var(--chart-1))" />
-          <Stat label="Point" value={`(${x0.toFixed(2)}, ${y0.toFixed(2)})`} accent="hsl(var(--chart-2))" />
+          <EditableStat label="Point x₀" value={x0} onChange={setX0} min={-100} max={100} accent="hsl(var(--chart-2))" hint="Click to type a new x₀" />
+          <Stat label="f(x₀)" value={y0.toFixed(4)} accent="hsl(var(--chart-2))" />
           <Stat label="Tangent slope f′(x₀)" value={slopeExact.toFixed(4)} accent="hsl(var(--chart-2))" />
           <Stat label="Secant slope" value={slopeSecant.toFixed(4)} accent="hsl(var(--chart-4))" />
-          <Stat label="Step h" value={h.toFixed(3)} />
+          <EditableStat label="Step h" value={h} onChange={setH} min={0.001} max={10} format={(v) => v.toFixed(3)} hint="Click to type a new step" />
           <Stat label="Approximation error" value={Math.abs(slopeExact - slopeSecant).toExponential(2)} />
         </InsightCard>
       }

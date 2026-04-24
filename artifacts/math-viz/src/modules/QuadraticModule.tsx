@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plot, FunctionCurve, PointDot, VLine, HLine, Label } from "@/lib/plot";
 import { SliderControl } from "@/components/SliderControl";
-import { ModuleShell, InsightCard, Stat } from "@/components/ModuleShell";
+import { ModuleShell, InsightCard, Stat, EditableStat } from "@/components/ModuleShell";
 
 export function QuadraticModule() {
   const [a, setA] = useState(1);
@@ -54,14 +54,23 @@ export function QuadraticModule() {
       insights={
         <InsightCard>
           <Stat label="Equation" value={`${a.toFixed(2)}x² + ${b.toFixed(2)}x + ${c.toFixed(2)}`} accent="hsl(var(--chart-1))" />
+          <EditableStat label="a (curvature)" value={a} onChange={setA} min={-50} max={50} accent="hsl(var(--chart-1))" hint="Click to type a new a" />
+          <EditableStat label="b (linear term)" value={b} onChange={setB} min={-100} max={100} accent="hsl(var(--accent))" hint="Click to type a new b" />
+          <EditableStat label="c (Y-Intercept)" value={c} onChange={setC} min={-100} max={100} accent="hsl(var(--accent))" hint="Click to type a new c" />
           <Stat label="Opens" value={opens} />
           <Stat label="Vertex" value={`(${vertexX.toFixed(2)}, ${vertexY.toFixed(2)})`} accent="hsl(var(--chart-2))" />
-          <Stat label="Axis of symmetry" value={`x = ${vertexX.toFixed(2)}`} />
+          <EditableStat
+            label="Axis of symmetry (x)"
+            value={vertexX}
+            onChange={(x) => {
+              if (a !== 0) setB(-2 * a * x);
+            }}
+            hint={a === 0 ? "Set a non-zero a first" : "Type a new axis x; b is recomputed"}
+          />
           <Stat label="Discriminant b²−4ac" value={discriminant.toFixed(2)} />
           <Stat label="Nature of roots" value={nature} accent="hsl(var(--chart-3))" />
           <Stat label="Root 1" value={Number.isFinite(root1) ? root1.toFixed(3) : "—"} />
           <Stat label="Root 2" value={Number.isFinite(root2) ? root2.toFixed(3) : "—"} />
-          <Stat label="Y-Intercept" value={`(0, ${c.toFixed(2)})`} accent="hsl(var(--accent))" />
         </InsightCard>
       }
     />

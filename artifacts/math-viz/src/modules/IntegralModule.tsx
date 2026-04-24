@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Plot, FunctionCurve, VLine, usePlotCtx } from "@/lib/plot";
 import { SliderControl } from "@/components/SliderControl";
-import { ModuleShell, InsightCard, Stat } from "@/components/ModuleShell";
+import { ModuleShell, InsightCard, Stat, EditableStat } from "@/components/ModuleShell";
 
 type FnKey = "poly" | "sin" | "exp" | "quad";
 const FUNCTIONS: Record<FnKey, { label: string; fn: (x: number) => number; expr: string }> = {
@@ -143,12 +143,13 @@ export function IntegralModule() {
       insights={
         <InsightCard>
           <Stat label="Function" value={FUNCTIONS[fnKey].expr} accent="hsl(var(--chart-1))" />
-          <Stat label="Interval" value={`[${a.toFixed(2)}, ${b.toFixed(2)}]`} />
+          <EditableStat label="Lower bound (a)" value={a} onChange={(v) => setA(Math.min(v, b - 0.01))} accent="hsl(var(--chart-3))" hint="Click to type a new lower bound" />
+          <EditableStat label="Upper bound (b)" value={b} onChange={(v) => setB(Math.max(v, a + 0.01))} accent="hsl(var(--chart-4))" hint="Click to type a new upper bound" />
+          <EditableStat label="Subdivisions (n)" value={n} onChange={(v) => setN(Math.max(1, Math.round(v)))} min={1} max={1000} format={(v) => `${Math.round(v)}`} accent="hsl(var(--chart-2))" hint="Click to type a new n" />
           <Stat label="Method" value={method} accent="hsl(var(--chart-2))" />
           <Stat label="Riemann sum" value={riemann.toFixed(4)} accent="hsl(var(--chart-2))" />
           <Stat label="True area (≈)" value={exact.toFixed(4)} accent="hsl(var(--chart-1))" />
           <Stat label="Error" value={error.toExponential(2)} accent="hsl(var(--destructive))" />
-          <Stat label="Subdivisions" value={`${n}`} />
           <Stat label="Δx" value={((b - a) / n).toFixed(4)} />
           <Stat label="|error| / true" value={`${exact !== 0 ? ((Math.abs(error) / Math.abs(exact)) * 100).toFixed(3) : "—"}%`} />
         </InsightCard>

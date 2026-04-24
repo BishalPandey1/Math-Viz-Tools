@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plot, FunctionCurve, HLine, VLine, Label } from "@/lib/plot";
 import { SliderControl } from "@/components/SliderControl";
-import { ModuleShell, InsightCard, Stat } from "@/components/ModuleShell";
+import { ModuleShell, InsightCard, Stat, EditableStat } from "@/components/ModuleShell";
 
 export function TrigModule() {
   const [A, setA] = useState(2);
@@ -43,11 +43,29 @@ export function TrigModule() {
       insights={
         <InsightCard>
           <Stat label="Equation" value={`${A.toFixed(2)}·sin(${B.toFixed(2)}x + ${C.toFixed(2)}) + ${D.toFixed(2)}`} accent="hsl(var(--chart-1))" />
-          <Stat label="Amplitude" value={Math.abs(A).toFixed(2)} accent="hsl(var(--chart-1))" />
-          <Stat label="Period" value={period.toFixed(3)} accent="hsl(var(--accent))" />
-          <Stat label="Frequency" value={(1 / period).toFixed(3)} />
-          <Stat label="Phase shift" value={phaseShift.toFixed(3)} accent="hsl(var(--chart-3))" />
-          <Stat label="Midline" value={`y = ${D.toFixed(2)}`} accent="hsl(var(--chart-4))" />
+          <EditableStat label="Amplitude (A)" value={A} onChange={setA} min={-50} max={50} accent="hsl(var(--chart-1))" hint="Click to type a new amplitude" />
+          <EditableStat label="Frequency (B)" value={B} onChange={setB} min={-50} max={50} accent="hsl(var(--accent))" hint="Click to type a new frequency" />
+          <EditableStat label="Phase (C)" value={C} onChange={setC} min={-100} max={100} accent="hsl(var(--chart-3))" hint="Click to type a new phase" />
+          <EditableStat label="Vertical shift (D)" value={D} onChange={setD} min={-50} max={50} accent="hsl(var(--chart-4))" hint="Click to type a new midline" />
+          <EditableStat
+            label="Period"
+            value={period}
+            onChange={(p) => {
+              if (p > 0) setB((B >= 0 ? 1 : -1) * ((2 * Math.PI) / p));
+            }}
+            min={0.05}
+            max={1000}
+            format={(v) => v.toFixed(3)}
+            hint="Type a new period; frequency updates"
+          />
+          <EditableStat
+            label="Phase shift"
+            value={phaseShift}
+            onChange={(s) => setC(-s * (B || 0.0001))}
+            format={(v) => v.toFixed(3)}
+            accent="hsl(var(--chart-3))"
+            hint="Type a horizontal shift; C updates"
+          />
         </InsightCard>
       }
     />

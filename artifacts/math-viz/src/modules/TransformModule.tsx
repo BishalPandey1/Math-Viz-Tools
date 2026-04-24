@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Plot, Polygon, PointDot, Line2D, Label } from "@/lib/plot";
 import { SliderControl } from "@/components/SliderControl";
-import { ModuleShell, InsightCard, Stat } from "@/components/ModuleShell";
+import { ModuleShell, InsightCard, Stat, EditableStat } from "@/components/ModuleShell";
 
 export function TransformModule() {
   // Linear transformation [[a,b],[c,d]]
@@ -71,6 +71,10 @@ export function TransformModule() {
       insights={
         <InsightCard>
           <Stat label="Matrix" value={`[[${a.toFixed(2)}, ${b.toFixed(2)}], [${c.toFixed(2)}, ${d.toFixed(2)}]]`} accent="hsl(var(--chart-1))" />
+          <EditableStat label="a (M₁₁)" value={a} onChange={setA} min={-50} max={50} accent="hsl(var(--chart-1))" />
+          <EditableStat label="b (M₁₂)" value={b} onChange={setB} min={-50} max={50} accent="hsl(var(--accent))" />
+          <EditableStat label="c (M₂₁)" value={c} onChange={setC} min={-50} max={50} accent="hsl(var(--chart-3))" />
+          <EditableStat label="d (M₂₂)" value={d} onChange={setD} min={-50} max={50} accent="hsl(var(--chart-4))" />
           <Stat label="Determinant" value={det.toFixed(3)} accent={det < 0 ? "hsl(var(--destructive))" : "hsl(var(--chart-1))"} />
           <Stat label="Area scale" value={`×${Math.abs(det).toFixed(3)}`} />
           <Stat label="Orientation" value={det >= 0 ? "preserved" : "flipped"} />

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plot, Circle2D, Polygon, Line2D, PointDot, Label } from "@/lib/plot";
 import { SliderControl } from "@/components/SliderControl";
-import { ModuleShell, InsightCard, Stat } from "@/components/ModuleShell";
+import { ModuleShell, InsightCard, Stat, EditableStat } from "@/components/ModuleShell";
 
 type Shape = "circle" | "triangle" | "polygon";
 
@@ -40,11 +40,12 @@ export function GeometryModule() {
       ),
       insights: (
         <>
-          <Stat label="Center" value={`(${cx.toFixed(2)}, ${cy.toFixed(2)})`} accent="hsl(var(--chart-2))" />
-          <Stat label="Radius" value={cr.toFixed(2)} accent="hsl(var(--chart-1))" />
-          <Stat label="Diameter" value={(cr * 2).toFixed(2)} />
-          <Stat label="Circumference" value={`${circ.toFixed(3)} = 2πr`} />
-          <Stat label="Area" value={`${area.toFixed(3)} = πr²`} accent="hsl(var(--chart-1))" />
+          <EditableStat label="Center x" value={cx} onChange={setCx} min={-100} max={100} accent="hsl(var(--chart-2))" hint="Click to type a new center x" />
+          <EditableStat label="Center y" value={cy} onChange={setCy} min={-100} max={100} accent="hsl(var(--chart-2))" hint="Click to type a new center y" />
+          <EditableStat label="Radius" value={cr} onChange={setCr} min={0.01} max={100} accent="hsl(var(--chart-1))" hint="Click to type a new radius" />
+          <EditableStat label="Diameter" value={cr * 2} onChange={(d) => setCr(d / 2)} min={0.02} max={200} hint="Type a diameter; radius updates" />
+          <EditableStat label="Circumference" value={circ} onChange={(c) => setCr(c / (2 * Math.PI))} min={0.01} max={1000} format={(v) => v.toFixed(3)} hint="Type a circumference; radius updates" />
+          <EditableStat label="Area" value={area} onChange={(A) => { if (A > 0) setCr(Math.sqrt(A / Math.PI)); }} min={0.001} max={100000} format={(v) => v.toFixed(3)} accent="hsl(var(--chart-1))" hint="Type an area; radius updates" />
         </>
       ),
       controls: (
@@ -79,6 +80,12 @@ export function GeometryModule() {
       ),
       insights: (
         <>
+          <EditableStat label="Ax" value={ax} onChange={setAx} min={-100} max={100} accent="hsl(var(--chart-1))" />
+          <EditableStat label="Ay" value={ay} onChange={setAy} min={-100} max={100} accent="hsl(var(--chart-1))" />
+          <EditableStat label="Bx" value={bx} onChange={setBx} min={-100} max={100} accent="hsl(var(--chart-3))" />
+          <EditableStat label="By" value={by} onChange={setBy} min={-100} max={100} accent="hsl(var(--chart-3))" />
+          <EditableStat label="Cx" value={tx} onChange={setTx} min={-100} max={100} accent="hsl(var(--chart-4))" />
+          <EditableStat label="Cy" value={ty} onChange={setTy} min={-100} max={100} accent="hsl(var(--chart-4))" />
           <Stat label="Perimeter" value={perim.toFixed(3)} accent="hsl(var(--chart-2))" />
           <Stat label="Area (Shoelace)" value={area.toFixed(3)} accent="hsl(var(--chart-1))" />
           <Stat label="Side AB" value={sideAB.toFixed(3)} />
@@ -87,7 +94,6 @@ export function GeometryModule() {
           <Stat label="Angle A" value={`${toDeg(angA).toFixed(2)}°`} />
           <Stat label="Angle B" value={`${toDeg(angB).toFixed(2)}°`} />
           <Stat label="Angle C" value={`${toDeg(angC).toFixed(2)}°`} />
-          <Stat label="Sum of angles" value={`${(toDeg(angA) + toDeg(angB) + toDeg(angC)).toFixed(2)}°`} />
         </>
       ),
       controls: (
@@ -129,7 +135,9 @@ export function GeometryModule() {
       ),
       insights: (
         <>
-          <Stat label="Sides" value={`${n}`} accent="hsl(var(--chart-3))" />
+          <EditableStat label="Sides (n)" value={sides} onChange={(v) => setSides(Math.max(3, Math.min(200, Math.round(v))))} min={3} max={200} format={(v) => `${Math.round(v)}`} accent="hsl(var(--chart-3))" hint="Click to type a new sides count" />
+          <EditableStat label="Radius (r)" value={pr} onChange={setPr} min={0.01} max={100} hint="Click to type a new radius" />
+          <EditableStat label="Rotation (θ)" value={rot} onChange={setRot} min={-360} max={360} suffix="°" hint="Click to type a new rotation" />
           <Stat label="Side length" value={sideLen.toFixed(3)} />
           <Stat label="Perimeter" value={perim.toFixed(3)} />
           <Stat label="Apothem" value={apothem.toFixed(3)} />
