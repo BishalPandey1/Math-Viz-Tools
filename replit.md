@@ -6,7 +6,7 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 
 ## Apps
 
-- **Interactive Math Visualizer** (`artifacts/math-viz`) — React + Vite frontend-only educational app with interactive visualizations: linear/quadratic/sinusoidal functions, derivatives & tangent lines, Riemann-sum integrals, geometry (circle/triangle/regular polygon), and 2×2 linear transformations. Custom SVG plotting engine in `src/lib/plot.tsx`; modules in `src/modules/`. No backend.
+- **Interactive Math Visualizer** (`artifacts/math-viz`) — React + Vite frontend-only educational app with interactive visualizations: linear/quadratic/sinusoidal functions, derivatives & tangent lines, Riemann-sum integrals, geometry (11 shapes: circle, ellipse, square, rectangle, triangle, right triangle, parallelogram, trapezoid, rhombus, sector, regular polygon — each with angle arcs in the diagram and a textbook-style step-by-step solution panel showing formula → substitution → result), and 2×2 linear transformations. Glassmorphism UI with aurora background, dark/light theme persisted to localStorage, hash-based deep links (`#/<module>`), click-to-edit Live Insights, and an interactive Plot toolbar with zoom in/out, reset, fullscreen, plus drag-to-pan and scroll-to-zoom. Custom SVG plotting engine in `src/lib/plot.tsx` (primitives: FunctionCurve, PointDot, VLine, HLine, FillRect, Polygon, Line2D, Circle2D, Ellipse2D, Sector2D, AngleArc, Label); modules in `src/modules/`; reusable shell + SolutionSteps in `src/components/ModuleShell.tsx`. No backend.
 
 ## Stack
 

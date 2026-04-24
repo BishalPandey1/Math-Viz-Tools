@@ -127,7 +127,28 @@ function ThemeToggle({ theme, onToggle }: { theme: "light" | "dark"; onToggle: (
 }
 
 function Home() {
-  const [active, setActive] = useState<ModuleId>("linear");
+  const [active, setActive] = useState<ModuleId>(() => {
+    if (typeof window === "undefined") return "linear";
+    const h = window.location.hash.replace(/^#\/?/, "");
+    if (NAV.find((n) => n.id === h)) return h as ModuleId;
+    return "linear";
+  });
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onHash = () => {
+      const h = window.location.hash.replace(/^#\/?/, "");
+      if (NAV.find((n) => n.id === h)) setActive(h as ModuleId);
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const target = `#/${active}`;
+    if (window.location.hash !== target) {
+      window.history.replaceState(null, "", target);
+    }
+  }, [active]);
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "light";
     const saved = window.localStorage.getItem("math-viz-theme");

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Pencil } from "lucide-react";
+import { Pencil, ChevronDown, ChevronRight, BookOpen } from "lucide-react";
 
 export function ModuleShell({
   title,
@@ -62,6 +62,70 @@ export function Stat({ label, value, accent }: { label: string; value: string; a
     </div>
   );
 }
+
+/** Render a textbook-style step-by-step solution panel. */
+export function SolutionSteps({
+  title = "Step-by-step solution",
+  steps,
+  defaultOpen = true,
+}: {
+  title?: string;
+  steps: SolutionStep[];
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="glass rounded-xl overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center gap-2 px-5 py-3 text-left hover-elevate"
+      >
+        <BookOpen className="w-4 h-4 text-primary" />
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex-1">
+          {title}
+        </span>
+        {open ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+      </button>
+      {open && (
+        <ol className="px-5 pb-5 space-y-4">
+          {steps.map((s, i) => (
+            <li key={i} className="flex gap-3">
+              <span className="shrink-0 w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-semibold grid place-items-center mt-0.5">
+                {i + 1}
+              </span>
+              <div className="flex-1 min-w-0 space-y-1.5">
+                {s.text && <div className="text-sm text-foreground/90">{s.text}</div>}
+                {s.formula && (
+                  <div className="font-mono text-sm bg-muted/60 rounded-md px-3 py-2 overflow-x-auto whitespace-nowrap">
+                    {s.formula}
+                  </div>
+                )}
+                {s.substitution && (
+                  <div className="font-mono text-sm bg-muted/40 rounded-md px-3 py-2 overflow-x-auto whitespace-nowrap text-muted-foreground">
+                    {s.substitution}
+                  </div>
+                )}
+                {s.result && (
+                  <div className="font-mono text-sm font-semibold tabular-nums text-primary">
+                    = {s.result}
+                  </div>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+}
+
+export type SolutionStep = {
+  text?: ReactNode;
+  formula?: ReactNode;
+  substitution?: ReactNode;
+  result?: ReactNode;
+};
 
 export function EditableStat({
   label,

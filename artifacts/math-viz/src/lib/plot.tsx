@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState, useEffect, type ReactNode } from "react";
+import { useMemo, useRef, useState, useEffect, useCallback, type ReactNode } from "react";
+import { ZoomIn, ZoomOut, Maximize2, Minimize2, RotateCcw } from "lucide-react";
 
 export type PlotRange = { xMin: number; xMax: number; yMin: number; yMax: number };
 
@@ -13,6 +14,7 @@ type PlotProps = {
   className?: string;
   onPointerMove?: (x: number, y: number) => void;
   cursor?: string;
+  interactive?: boolean;
 };
 
 type Ctx = {
@@ -30,17 +32,34 @@ export function usePlotCtx(): Ctx {
 }
 
 export function Plot({
-  range = defaultRange,
-  height = 420,
+  range: rangeProp = defaultRange,
+  height: heightProp = 420,
   children,
   showAxes = true,
   showGrid = true,
   className = "",
   onPointerMove,
   cursor,
+  interactive = false,
 }: PlotProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(800);
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState<null | { startX: number; startY: number; panX: number; panY: number }>(null);
+  const [fullscreen, setFullscreen] = useState(false);
+
+  // Derived range from base range + zoom + pan
+  const range = useMemo<PlotRange>(() => {
+    if (!interactive) return rangeProp;
+    const cx = (rangeProp.xMin + rangeProp.xMax) / 2 + pan.x;
+    const cy = (rangeProp.yMin + rangeProp.yMax) / 2 + pan.y;
+    const halfW = ((rangeProp.xMax - rangeProp.xMin) / 2) / zoom;
+    const halfH = ((rangeProp.yMax - rangeProp.yMin) / 2) / zoom;
+    return { xMin: cx - halfW, xMax: cx + halfW, yMin: cy - halfH, yMax: cy + halfH };
+  }, [rangeProp, zoom, pan, interactive]);
+
+  const height = fullscreen ? Math.max(400, window.innerHeight - 80) : heightProp;
 
   useEffect(() => {
     if (!wrapRef.current) return;
@@ -50,6 +69,38 @@ export function Plot({
     });
     ro.observe(wrapRef.current);
     return () => ro.disconnect();
+  }, []);
+
+  // Fullscreen — use document.fullscreenElement listeners to sync state if user presses Esc
+  useEffect(() => {
+    function onChange() {
+      const el = document.fullscreenElement;
+      if (!el && fullscreen) setFullscreen(false);
+    }
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, [fullscreen]);
+
+  const toggleFullscreen = useCallback(async () => {
+    const el = wrapRef.current;
+    if (!el) return;
+    try {
+      if (!document.fullscreenElement) {
+        await el.requestFullscreen?.();
+        setFullscreen(true);
+      } else {
+        await document.exitFullscreen?.();
+        setFullscreen(false);
+      }
+    } catch {
+      // Fallback: just visual state
+      setFullscreen((f) => !f);
+    }
+  }, []);
+
+  const reset = useCallback(() => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
   }, []);
 
   const ctx = useMemo<Ctx>(() => {
@@ -80,6 +131,14 @@ export function Plot({
   }, [range]);
 
   function handleMove(e: React.PointerEvent<SVGSVGElement>) {
+    if (dragging && interactive) {
+      const dx = e.clientX - dragging.startX;
+      const dy = e.clientY - dragging.startY;
+      const dataDx = (-dx / ctx.width) * (range.xMax - range.xMin);
+      const dataDy = (dy / ctx.height) * (range.yMax - range.yMin);
+      setPan({ x: dragging.panX + dataDx, y: dragging.panY + dataDy });
+      return;
+    }
     if (!onPointerMove) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const px = e.clientX - rect.left;
@@ -89,14 +148,67 @@ export function Plot({
     onPointerMove(xVal, yVal);
   }
 
+  function handleDown(e: React.PointerEvent<SVGSVGElement>) {
+    if (!interactive) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDragging({ startX: e.clientX, startY: e.clientY, panX: pan.x, panY: pan.y });
+  }
+
+  function handleUp(e: React.PointerEvent<SVGSVGElement>) {
+    if (dragging) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+      setDragging(null);
+    }
+  }
+
+  function handleWheel(e: React.WheelEvent<SVGSVGElement>) {
+    if (!interactive) return;
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+    setZoom((z) => Math.min(40, Math.max(0.1, z * factor)));
+  }
+
   return (
-    <div ref={wrapRef} className={`w-full ${className}`}>
+    <div
+      ref={wrapRef}
+      className={`relative w-full ${className} ${fullscreen ? "bg-background p-3" : ""}`}
+    >
+      {interactive && (
+        <div className="absolute top-2 right-2 z-10 flex items-center gap-1 rounded-lg glass px-1 py-1 shadow-md">
+          <PlotBtn label="Zoom in" onClick={() => setZoom((z) => Math.min(40, z * 1.25))}>
+            <ZoomIn className="w-4 h-4" />
+          </PlotBtn>
+          <PlotBtn label="Zoom out" onClick={() => setZoom((z) => Math.max(0.1, z / 1.25))}>
+            <ZoomOut className="w-4 h-4" />
+          </PlotBtn>
+          <PlotBtn label="Reset view" onClick={reset}>
+            <RotateCcw className="w-4 h-4" />
+          </PlotBtn>
+          <div className="w-px h-5 bg-border mx-1" />
+          <span className="px-1.5 text-[11px] font-mono tabular-nums text-muted-foreground">
+            {(zoom * 100).toFixed(0)}%
+          </span>
+          <div className="w-px h-5 bg-border mx-1" />
+          <PlotBtn label={fullscreen ? "Exit fullscreen" : "Fullscreen"} onClick={toggleFullscreen}>
+            {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          </PlotBtn>
+        </div>
+      )}
       <svg
         width={width}
         height={height}
         className="block rounded-lg bg-card border border-card-border"
-        style={{ cursor: cursor ?? (onPointerMove ? "crosshair" : "default") }}
+        style={{
+          cursor:
+            cursor ??
+            (dragging ? "grabbing" : interactive ? "grab" : onPointerMove ? "crosshair" : "default"),
+          touchAction: interactive ? "none" : undefined,
+        }}
         onPointerMove={handleMove}
+        onPointerDown={handleDown}
+        onPointerUp={handleUp}
+        onPointerCancel={handleUp}
+        onWheel={handleWheel}
       >
         {showGrid && (
           <g>
@@ -137,6 +249,20 @@ export function Plot({
         {children}
       </svg>
     </div>
+  );
+}
+
+function PlotBtn({ children, onClick, label }: { children: ReactNode; onClick: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={label}
+      aria-label={label}
+      className="w-7 h-7 grid place-items-center rounded-md text-muted-foreground hover:text-foreground hover-elevate transition-colors"
+    >
+      {children}
+    </button>
   );
 }
 
@@ -253,4 +379,111 @@ export function Circle2D({ cx, cy, r, fill, stroke = "hsl(var(--chart-2))", stro
 export function Label({ x, y, children, color = "hsl(var(--foreground))", anchor = "middle", dy = 0 }: { x: number; y: number; children: string; color?: string; anchor?: "start" | "middle" | "end"; dy?: number }) {
   const ctx = usePlotCtx();
   return <text x={ctx.toX(x)} y={ctx.toY(y) + dy} fontSize={12} textAnchor={anchor} fill={color} fontFamily="var(--font-mono)" fontWeight={600}>{children}</text>;
+}
+
+export function Ellipse2D({
+  cx, cy, rx, ry, rotation = 0, fill, stroke = "hsl(var(--chart-2))", strokeWidth = 2, opacity = 0.2,
+}: { cx: number; cy: number; rx: number; ry: number; rotation?: number; fill?: string; stroke?: string; strokeWidth?: number; opacity?: number }) {
+  const ctx = usePlotCtx();
+  const px = ctx.toX(cx);
+  const py = ctx.toY(cy);
+  const prx = Math.abs(ctx.toX(cx + rx) - ctx.toX(cx));
+  const pry = Math.abs(ctx.toY(cy + ry) - ctx.toY(cy));
+  return (
+    <ellipse cx={px} cy={py} rx={prx} ry={pry}
+      transform={`rotate(${-rotation} ${px} ${py})`}
+      fill={fill ?? "none"} stroke={stroke} strokeWidth={strokeWidth} opacity={opacity} />
+  );
+}
+
+/** Circular sector: center at (cx,cy), radius r, from startAngle to endAngle (degrees, CCW). */
+export function Sector2D({
+  cx, cy, r, startAngle, endAngle, fill = "hsl(var(--chart-3))", stroke = "hsl(var(--chart-3))", strokeWidth = 2, opacity = 0.25,
+}: { cx: number; cy: number; r: number; startAngle: number; endAngle: number; fill?: string; stroke?: string; strokeWidth?: number; opacity?: number }) {
+  const ctx = usePlotCtx();
+  const cpx = ctx.toX(cx);
+  const cpy = ctx.toY(cy);
+  const pr = Math.abs(ctx.toX(cx + r) - ctx.toX(cx));
+  const a1 = (startAngle * Math.PI) / 180;
+  const a2 = (endAngle * Math.PI) / 180;
+  // SVG y-axis is flipped relative to math; subtract for screen coords
+  const x1 = cpx + pr * Math.cos(a1);
+  const y1 = cpy - pr * Math.sin(a1);
+  const x2 = cpx + pr * Math.cos(a2);
+  const y2 = cpy - pr * Math.sin(a2);
+  const sweep = Math.abs(endAngle - startAngle) % 360;
+  const largeArc = sweep > 180 ? 1 : 0;
+  // Sweep direction: in screen coords y-axis is inverted, so CCW in math = sweep-flag 0
+  const sweepFlag = endAngle > startAngle ? 0 : 1;
+  const d = `M ${cpx} ${cpy} L ${x1} ${y1} A ${pr} ${pr} 0 ${largeArc} ${sweepFlag} ${x2} ${y2} Z`;
+  return <path d={d} fill={fill} stroke={stroke} strokeWidth={strokeWidth} opacity={opacity} />;
+}
+
+/**
+ * Draw an angle arc at vertex V between rays V→A and V→B, with the angle value labeled.
+ * Returns the angle in degrees (positive, 0..180).
+ */
+export function AngleArc({
+  vx, vy, ax, ay, bx, by, color = "hsl(var(--chart-4))", radiusPx = 22, label, rightAngle = false,
+}: {
+  vx: number; vy: number; ax: number; ay: number; bx: number; by: number;
+  color?: string; radiusPx?: number; label?: string; rightAngle?: boolean;
+}) {
+  const ctx = usePlotCtx();
+  const cpx = ctx.toX(vx);
+  const cpy = ctx.toY(vy);
+  // Use pixel-space angles for visual correctness
+  const apx = ctx.toX(ax) - cpx;
+  const apy = ctx.toY(ay) - cpy;
+  const bpx = ctx.toX(bx) - cpx;
+  const bpy = ctx.toY(by) - cpy;
+  const angA = Math.atan2(apy, apx);
+  const angB = Math.atan2(bpy, bpx);
+  // Angle between vectors (always positive, 0..π)
+  let delta = angB - angA;
+  while (delta <= -Math.PI) delta += 2 * Math.PI;
+  while (delta > Math.PI) delta -= 2 * Math.PI;
+  const sweepFlag = delta > 0 ? 1 : 0;
+  const absDelta = Math.abs(delta);
+  const largeArc = absDelta > Math.PI ? 1 : 0;
+  const r = radiusPx;
+  const x1 = cpx + r * Math.cos(angA);
+  const y1 = cpy + r * Math.sin(angA);
+  const x2 = cpx + r * Math.cos(angB);
+  const y2 = cpy + r * Math.sin(angB);
+  const midA = angA + delta / 2;
+  const lblR = r + 14;
+  const lx = cpx + lblR * Math.cos(midA);
+  const ly = cpy + lblR * Math.sin(midA);
+  const angDeg = (absDelta * 180) / Math.PI;
+  const isRight = rightAngle || Math.abs(angDeg - 90) < 0.5;
+  if (isRight) {
+    // Draw a tiny square instead of arc for right angles
+    const s = r * 0.6;
+    const ux = Math.cos(angA), uy = Math.sin(angA);
+    const vxv = Math.cos(angB), vyv = Math.sin(angB);
+    const p0x = cpx + ux * s, p0y = cpy + uy * s;
+    const p1x = p0x + vxv * s, p1y = p0y + vyv * s;
+    const p2x = cpx + vxv * s, p2y = cpy + vyv * s;
+    return (
+      <g>
+        <polyline points={`${p0x},${p0y} ${p1x},${p1y} ${p2x},${p2y}`}
+          fill="none" stroke={color} strokeWidth={1.5} />
+        <text x={lx} y={ly + 4} fontSize={11} textAnchor="middle"
+          fill={color} fontFamily="var(--font-mono)" fontWeight={600}>
+          {label ?? "90°"}
+        </text>
+      </g>
+    );
+  }
+  return (
+    <g>
+      <path d={`M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} ${sweepFlag} ${x2} ${y2}`}
+        fill="none" stroke={color} strokeWidth={1.6} />
+      <text x={lx} y={ly + 4} fontSize={11} textAnchor="middle"
+        fill={color} fontFamily="var(--font-mono)" fontWeight={600}>
+        {label ?? `${angDeg.toFixed(1)}°`}
+      </text>
+    </g>
+  );
 }
