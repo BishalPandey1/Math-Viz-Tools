@@ -48,8 +48,8 @@ function NavGroup({
   const items = NAV.filter((n) => n.group === name);
   const containsActive = items.some((i) => i.id === active);
   const [hover, setHover] = useState(false);
-  // Open when hovered OR when this group contains the active item
-  const open = hover || containsActive;
+  // Open only on hover — all groups behave identically
+  const open = hover;
   const GroupIcon = GROUP_ICONS[name] ?? FolderOpen;
 
   return (
