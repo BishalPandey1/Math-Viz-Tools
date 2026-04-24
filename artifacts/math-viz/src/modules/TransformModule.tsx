@@ -55,7 +55,7 @@ export function TransformModule() {
         </>
       }
       plot={
-        <Plot height={520} range={{ xMin: -10, xMax: 10, yMin: -10, yMax: 10 }}>
+        <Plot height={520} interactive range={{ xMin: -10, xMax: 10, yMin: -10, yMax: 10 }}>
           {/* Original shape */}
           <Polygon points={original} fill="hsl(var(--muted-foreground))" stroke="hsl(var(--muted-foreground))" opacity={0.15} strokeWidth={1.5} />
           {/* Transformed shape */}

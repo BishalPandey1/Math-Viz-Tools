@@ -1,14 +1,22 @@
 import { useMemo, useState } from "react";
 import { Plot, FunctionCurve, VLine, usePlotCtx } from "@/lib/plot";
 import { SliderControl } from "@/components/SliderControl";
-import { ModuleShell, InsightCard, Stat, EditableStat } from "@/components/ModuleShell";
+import {
+  ModuleShell,
+  InsightCard,
+  Stat,
+  EditableStat,
+  SolutionSteps,
+  VariableSolver,
+  type SolutionStep,
+} from "@/components/ModuleShell";
 
 type FnKey = "poly" | "sin" | "exp" | "quad";
-const FUNCTIONS: Record<FnKey, { label: string; fn: (x: number) => number; expr: string }> = {
-  poly: { label: "x² ⁄ 4", fn: (x) => (x * x) / 4, expr: "f(x) = x²/4" },
-  quad: { label: "−x² + 9", fn: (x) => -x * x + 9, expr: "f(x) = −x² + 9" },
-  sin: { label: "2·sin(x) + 3", fn: (x) => 2 * Math.sin(x) + 3, expr: "f(x) = 2·sin(x)+3" },
-  exp: { label: "eˣ⁄³", fn: (x) => Math.exp(x / 3), expr: "f(x) = e^(x/3)" },
+const FUNCTIONS: Record<FnKey, { label: string; fn: (x: number) => number; expr: string; antideriv: string }> = {
+  poly: { label: "x² ⁄ 4", fn: (x) => (x * x) / 4, expr: "f(x) = x²/4", antideriv: "F(x) = x³ / 12" },
+  quad: { label: "−x² + 9", fn: (x) => -x * x + 9, expr: "f(x) = −x² + 9", antideriv: "F(x) = −x³/3 + 9x" },
+  sin: { label: "2·sin(x) + 3", fn: (x) => 2 * Math.sin(x) + 3, expr: "f(x) = 2·sin(x)+3", antideriv: "F(x) = −2·cos(x) + 3x" },
+  exp: { label: "eˣ⁄³", fn: (x) => Math.exp(x / 3), expr: "f(x) = e^(x/3)", antideriv: "F(x) = 3·e^(x/3)" },
 };
 
 type Method = "left" | "right" | "midpoint" | "trapezoid";
@@ -26,7 +34,7 @@ function RiemannBars({
     if (method === "left") y = fn(x1);
     else if (method === "right") y = fn(x2);
     else if (method === "midpoint") y = fn((x1 + x2) / 2);
-    else y = (fn(x1) + fn(x2)) / 2; // trapezoid uses height = avg
+    else y = (fn(x1) + fn(x2)) / 2;
     if (method === "trapezoid") {
       bars.push({ x: x1, w: dx, h: 0, y: 0, signed: ((fn(x1) + fn(x2)) / 2) * dx, pts: [x1, fn(x1), x2, fn(x2)] });
     } else {
@@ -83,7 +91,6 @@ export function IntegralModule() {
       else y = (f(x1) + f(x2)) / 2;
       sum += y * dx;
     }
-    // High-resolution reference (Simpson's-ish trapezoidal with many slices)
     const N = 5000;
     const dxx = (b - a) / N;
     let exactSum = 0;
@@ -96,6 +103,46 @@ export function IntegralModule() {
   }, [f, a, b, n, method]);
 
   const error = riemann - exact;
+  const dx = (b - a) / n;
+
+  const steps: SolutionStep[] = useMemo(
+    () => [
+      {
+        text: "Goal: estimate the signed area between the curve and the x-axis from a to b.",
+        formula: "I = ∫ₐᵇ f(x) dx",
+      },
+      { text: "The function being integrated:", formula: FUNCTIONS[fnKey].expr },
+      {
+        text: `Divide [a, b] into n equal slices. The slice width is Δx = (b − a) / n.`,
+        formula: "Δx = (b − a) / n",
+        substitution: `Δx = (${b.toFixed(2)} − ${a.toFixed(2)}) / ${n}`,
+        result: `Δx = ${dx.toFixed(4)}`,
+      },
+      {
+        text: `Sum the slice areas using the ${method} rule.`,
+        formula:
+          method === "left"
+            ? "I ≈ Σ f(xᵢ) · Δx,  xᵢ = a + i·Δx"
+            : method === "right"
+            ? "I ≈ Σ f(xᵢ₊₁) · Δx"
+            : method === "midpoint"
+            ? "I ≈ Σ f((xᵢ + xᵢ₊₁)/2) · Δx"
+            : "I ≈ Σ (f(xᵢ) + f(xᵢ₊₁))/2 · Δx",
+        result: `Σ ≈ ${riemann.toFixed(4)}`,
+      },
+      {
+        text: "Compute the exact integral analytically (using a high-resolution reference).",
+        formula: FUNCTIONS[fnKey].antideriv,
+        substitution: `I = F(${b.toFixed(2)}) − F(${a.toFixed(2)})`,
+        result: `I = ${exact.toFixed(4)}`,
+      },
+      {
+        text: "The approximation error shrinks as n grows.",
+        result: `error = ${error.toExponential(3)}`,
+      },
+    ],
+    [fnKey, a, b, n, dx, riemann, exact, error, method]
+  );
 
   return (
     <ModuleShell
@@ -133,7 +180,7 @@ export function IntegralModule() {
         </>
       }
       plot={
-        <Plot height={460} range={{ xMin: -10, xMax: 10, yMin: -4, yMax: 12 }}>
+        <Plot height={460} interactive range={{ xMin: -10, xMax: 10, yMin: -4, yMax: 12 }}>
           <RiemannBars fn={f} a={a} b={b} n={n} method={method} />
           <FunctionCurve fn={f} color="hsl(var(--chart-1))" strokeWidth={3} />
           <VLine x={a} color="hsl(var(--chart-3))" dashed={false} />
@@ -143,16 +190,46 @@ export function IntegralModule() {
       insights={
         <InsightCard>
           <Stat label="Function" value={FUNCTIONS[fnKey].expr} accent="hsl(var(--chart-1))" />
-          <EditableStat label="Lower bound (a)" value={a} onChange={(v) => setA(Math.min(v, b - 0.01))} accent="hsl(var(--chart-3))" hint="Click to type a new lower bound" />
-          <EditableStat label="Upper bound (b)" value={b} onChange={(v) => setB(Math.max(v, a + 0.01))} accent="hsl(var(--chart-4))" hint="Click to type a new upper bound" />
-          <EditableStat label="Subdivisions (n)" value={n} onChange={(v) => setN(Math.max(1, Math.round(v)))} min={1} max={1000} format={(v) => `${Math.round(v)}`} accent="hsl(var(--chart-2))" hint="Click to type a new n" />
+          <EditableStat label="Lower bound (a)" value={a} onChange={(v) => setA(Math.min(v, b - 0.01))} step={0.1} accent="hsl(var(--chart-3))" hint="Click to type · scroll to nudge" />
+          <EditableStat label="Upper bound (b)" value={b} onChange={(v) => setB(Math.max(v, a + 0.01))} step={0.1} accent="hsl(var(--chart-4))" hint="Click to type · scroll to nudge" />
+          <EditableStat label="Subdivisions (n)" value={n} onChange={(v) => setN(Math.max(1, Math.round(v)))} min={1} max={1000} step={1} format={(v) => `${Math.round(v)}`} accent="hsl(var(--chart-2))" hint="Click to type · scroll to nudge" />
           <Stat label="Method" value={method} accent="hsl(var(--chart-2))" />
           <Stat label="Riemann sum" value={riemann.toFixed(4)} accent="hsl(var(--chart-2))" />
           <Stat label="True area (≈)" value={exact.toFixed(4)} accent="hsl(var(--chart-1))" />
           <Stat label="Error" value={error.toExponential(2)} accent="hsl(var(--destructive))" />
-          <Stat label="Δx" value={((b - a) / n).toFixed(4)} />
+          <Stat label="Δx" value={dx.toFixed(4)} />
           <Stat label="|error| / true" value={`${exact !== 0 ? ((Math.abs(error) / Math.abs(exact)) * 100).toFixed(3) : "—"}%`} />
         </InsightCard>
+      }
+      extras={
+        <>
+          <VariableSolver
+            title="Riemann sum: solve for any of {a, b, n, Δx}"
+            def={{
+              vars: [
+                { symbol: "a", label: "lower bound", color: "hsl(var(--chart-3))" },
+                { symbol: "b", label: "upper bound", color: "hsl(var(--chart-4))" },
+                { symbol: "n", label: "subdivisions", color: "hsl(var(--chart-2))" },
+                { symbol: "dx", label: "slice width Δx", color: "hsl(var(--chart-1))" },
+              ],
+              solvers: {
+                dx: { formula: "Δx = (b − a) / n", compute: (k) => (k.b - k.a) / k.n },
+                a: { formula: "a = b − n·Δx", compute: (k) => k.b - k.n * k.dx },
+                b: { formula: "b = a + n·Δx", compute: (k) => k.a + k.n * k.dx },
+                n: { formula: "n = (b − a) / Δx", compute: (k) => Math.round((k.b - k.a) / k.dx) },
+              },
+            }}
+            initial={{ a, b, n, dx }}
+            onApply={(out) => {
+              if (Number.isFinite(out.a) && Number.isFinite(out.b) && out.b > out.a) {
+                setA(out.a);
+                setB(out.b);
+              }
+              if (Number.isFinite(out.n) && out.n >= 1) setN(Math.max(1, Math.round(out.n)));
+            }}
+          />
+          <SolutionSteps title="Step-by-step computation" steps={steps} />
+        </>
       }
     />
   );

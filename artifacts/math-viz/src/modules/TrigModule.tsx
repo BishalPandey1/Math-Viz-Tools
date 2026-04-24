@@ -1,7 +1,15 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Plot, FunctionCurve, HLine, VLine, Label } from "@/lib/plot";
 import { SliderControl } from "@/components/SliderControl";
-import { ModuleShell, InsightCard, Stat, EditableStat } from "@/components/ModuleShell";
+import {
+  ModuleShell,
+  InsightCard,
+  Stat,
+  EditableStat,
+  SolutionSteps,
+  VariableSolver,
+  type SolutionStep,
+} from "@/components/ModuleShell";
 
 export function TrigModule() {
   const [A, setA] = useState(2);
@@ -12,6 +20,38 @@ export function TrigModule() {
   const fn = (x: number) => A * Math.sin(B * x + C) + D;
   const period = (2 * Math.PI) / Math.abs(B || 0.0001);
   const phaseShift = -C / (B || 0.0001);
+
+  const steps: SolutionStep[] = useMemo(
+    () => [
+      { text: "Begin from the general sinusoid in the form y = A·sin(Bx + C) + D.", formula: "y = A·sin(B·x + C) + D" },
+      {
+        text: "Plug in the four parameters from the sliders.",
+        substitution: `y = ${A.toFixed(2)}·sin(${B.toFixed(2)}·x + ${C.toFixed(2)}) + ${D.toFixed(2)}`,
+      },
+      {
+        text: "Amplitude is the absolute value of A — it tells you how far the wave reaches above and below the midline.",
+        formula: "amplitude = |A|",
+        result: `amplitude = ${Math.abs(A).toFixed(3)}`,
+      },
+      {
+        text: "Period is one full cycle of the sine; for sin(B·x) it is 2π divided by |B|.",
+        formula: "T = 2π / |B|",
+        substitution: `T = 2π / |${B.toFixed(2)}|`,
+        result: `T ≈ ${period.toFixed(3)}`,
+      },
+      {
+        text: "Phase shift moves the wave horizontally; it is −C/B (positive = right, negative = left).",
+        formula: "shift = −C / B",
+        substitution: `shift = −(${C.toFixed(2)}) / (${B.toFixed(2)})`,
+        result: `shift ≈ ${phaseShift.toFixed(3)}`,
+      },
+      {
+        text: "D is the vertical shift — the midline of the wave.",
+        result: `midline y = ${D.toFixed(3)}`,
+      },
+    ],
+    [A, B, C, D, period, phaseShift]
+  );
 
   return (
     <ModuleShell
@@ -31,7 +71,7 @@ export function TrigModule() {
         </>
       }
       plot={
-        <Plot height={460} range={{ xMin: -10, xMax: 10, yMin: -8, yMax: 8 }}>
+        <Plot height={460} interactive range={{ xMin: -10, xMax: 10, yMin: -8, yMax: 8 }}>
           <HLine y={D} color="hsl(var(--chart-4))" />
           <HLine y={D + Math.abs(A)} color="hsl(var(--chart-1))" />
           <HLine y={D - Math.abs(A)} color="hsl(var(--chart-1))" />
@@ -43,10 +83,10 @@ export function TrigModule() {
       insights={
         <InsightCard>
           <Stat label="Equation" value={`${A.toFixed(2)}·sin(${B.toFixed(2)}x + ${C.toFixed(2)}) + ${D.toFixed(2)}`} accent="hsl(var(--chart-1))" />
-          <EditableStat label="Amplitude (A)" value={A} onChange={setA} min={-50} max={50} accent="hsl(var(--chart-1))" hint="Click to type a new amplitude" />
-          <EditableStat label="Frequency (B)" value={B} onChange={setB} min={-50} max={50} accent="hsl(var(--accent))" hint="Click to type a new frequency" />
-          <EditableStat label="Phase (C)" value={C} onChange={setC} min={-100} max={100} accent="hsl(var(--chart-3))" hint="Click to type a new phase" />
-          <EditableStat label="Vertical shift (D)" value={D} onChange={setD} min={-50} max={50} accent="hsl(var(--chart-4))" hint="Click to type a new midline" />
+          <EditableStat label="Amplitude (A)" value={A} onChange={setA} min={-50} max={50} step={0.1} accent="hsl(var(--chart-1))" hint="Click to type · scroll to nudge" />
+          <EditableStat label="Frequency (B)" value={B} onChange={setB} min={-50} max={50} step={0.05} accent="hsl(var(--accent))" hint="Click to type · scroll to nudge" />
+          <EditableStat label="Phase (C)" value={C} onChange={setC} min={-100} max={100} step={0.05} accent="hsl(var(--chart-3))" hint="Click to type · scroll to nudge" />
+          <EditableStat label="Vertical shift (D)" value={D} onChange={setD} min={-50} max={50} step={0.1} accent="hsl(var(--chart-4))" hint="Click to type · scroll to nudge" />
           <EditableStat
             label="Period"
             value={period}
@@ -55,6 +95,7 @@ export function TrigModule() {
             }}
             min={0.05}
             max={1000}
+            step={0.05}
             format={(v) => v.toFixed(3)}
             hint="Type a new period; frequency updates"
           />
@@ -62,11 +103,63 @@ export function TrigModule() {
             label="Phase shift"
             value={phaseShift}
             onChange={(s) => setC(-s * (B || 0.0001))}
+            step={0.05}
             format={(v) => v.toFixed(3)}
             accent="hsl(var(--chart-3))"
             hint="Type a horizontal shift; C updates"
           />
         </InsightCard>
+      }
+      extras={
+        <>
+          <VariableSolver
+            title="Solve y = A·sin(B·x + C) + D for any variable"
+            def={{
+              vars: [
+                { symbol: "A", color: "hsl(var(--chart-1))" },
+                { symbol: "B", color: "hsl(var(--accent))" },
+                { symbol: "C", color: "hsl(var(--chart-3))" },
+                { symbol: "D", color: "hsl(var(--chart-4))" },
+                { symbol: "x", label: "input", color: "hsl(var(--chart-2))" },
+                { symbol: "y", label: "output", color: "hsl(var(--chart-5))" },
+              ],
+              solvers: {
+                y: {
+                  formula: "y = A·sin(B·x + C) + D",
+                  compute: (k) => k.A * Math.sin(k.B * k.x + k.C) + k.D,
+                },
+                A: {
+                  formula: "A = (y − D) / sin(B·x + C)",
+                  compute: (k) => (k.y - k.D) / Math.sin(k.B * k.x + k.C),
+                },
+                D: {
+                  formula: "D = y − A·sin(B·x + C)",
+                  compute: (k) => k.y - k.A * Math.sin(k.B * k.x + k.C),
+                },
+                C: {
+                  formula: "C = arcsin((y − D) / A) − B·x",
+                  compute: (k) => Math.asin((k.y - k.D) / k.A) - k.B * k.x,
+                },
+                B: {
+                  formula: "B = (arcsin((y − D)/A) − C) / x",
+                  compute: (k) => (Math.asin((k.y - k.D) / k.A) - k.C) / k.x,
+                },
+                x: {
+                  formula: "x = (arcsin((y − D)/A) − C) / B",
+                  compute: (k) => (Math.asin((k.y - k.D) / k.A) - k.C) / k.B,
+                },
+              },
+            }}
+            initial={{ A, B, C, D, x: 0, y: A * Math.sin(C) + D }}
+            onApply={(out) => {
+              if (Number.isFinite(out.A)) setA(out.A);
+              if (Number.isFinite(out.B)) setB(out.B);
+              if (Number.isFinite(out.C)) setC(out.C);
+              if (Number.isFinite(out.D)) setD(out.D);
+            }}
+          />
+          <SolutionSteps title="How the wave is shaped" steps={steps} />
+        </>
       }
     />
   );
