@@ -43,6 +43,9 @@ export function SliderControl({ label, value, onChange, min, max, step = 0.01, f
             const n = parseFloat(cleaned);
             if (Number.isFinite(n)) onChange(clamp(n));
           }}
+          onFocus={(e) => {
+            e.target.select();
+          }}
           onKeyDown={(e) => {
             if (e.key === "ArrowUp") {
               e.preventDefault();
@@ -52,8 +55,8 @@ export function SliderControl({ label, value, onChange, min, max, step = 0.01, f
               nudge(-1, e.shiftKey);
             }
           }}
-          title="Type a number · ↑/↓ or scroll to nudge · Shift for ×10"
-          className="w-20 font-mono text-sm tabular-nums text-foreground bg-muted px-2 py-0.5 rounded-md text-right outline-none focus:ring-2 focus:ring-primary/40"
+          title="Click to type · Use - for negative · ↑/↓ or scroll to nudge · Shift for ×10"
+          className="w-20 font-mono text-sm tabular-nums text-foreground bg-muted px-2 py-0.5 rounded-md text-right outline-none focus:ring-2 focus:ring-primary/40 cursor-text"
         />
       </div>
       <Slider
