@@ -19,6 +19,15 @@ export function QuadraticModule() {
   const fn = (x: number) => a * x * x + b * x + c;
   const vertexX = a !== 0 ? -b / (2 * a) : 0;
   const vertexY = fn(vertexX);
+
+  // Auto-scale range based on parameters
+  const range = useMemo(() => {
+    const absA = Math.abs(a) || 1;
+    const span = Math.max(Math.abs(b), Math.abs(c), 1) * 5;
+    const maxX = Math.max(Math.abs(vertexX) + 5, span);
+    const maxY = Math.max(Math.abs(vertexY) + span, 15);
+    return { xMin: -maxX, xMax: maxX, yMin: -maxY, yMax: maxY };
+  }, [a, b, c, vertexX, vertexY]);
   const discriminant = b * b - 4 * a * c;
   const root1 = a !== 0 && discriminant >= 0 ? (-b - Math.sqrt(discriminant)) / (2 * a) : NaN;
   const root2 = a !== 0 && discriminant >= 0 ? (-b + Math.sqrt(discriminant)) / (2 * a) : NaN;
@@ -84,7 +93,7 @@ export function QuadraticModule() {
         </>
       }
       plot={
-        <Plot height={460} interactive>
+        <Plot height={460} interactive range={range}>
           <FunctionCurve fn={fn} color="hsl(var(--chart-1))" strokeWidth={3} />
           <VLine x={vertexX} color="hsl(var(--chart-2))" />
           <PointDot x={vertexX} y={vertexY} color="hsl(var(--chart-2))" label={`vertex (${vertexX.toFixed(2)}, ${vertexY.toFixed(2)})`} />

@@ -34,6 +34,14 @@ export function DerivativeModule() {
   const tangent = (x: number) => slopeExact * (x - x0) + y0;
   const secant = (x: number) => slopeSecant * (x - x0) + y0;
 
+  // Auto-scale range based on parameters
+  const range = useMemo(() => {
+    const margin = 3;
+    const xSpan = Math.max(Math.abs(x0) + margin, 6);
+    const ySpan = Math.max(Math.abs(y0) + margin, 6);
+    return { xMin: -xSpan, xMax: xSpan, yMin: -ySpan, yMax: ySpan };
+  }, [x0, y0]);
+
   const steps: SolutionStep[] = useMemo(
     () => [
       {
@@ -95,7 +103,7 @@ export function DerivativeModule() {
         </>
       }
       plot={
-        <Plot height={460} interactive>
+        <Plot height={460} interactive range={range}>
           <FunctionCurve fn={f} color="hsl(var(--chart-1))" strokeWidth={3} />
           <FunctionCurve fn={secant} color="hsl(var(--chart-4))" strokeWidth={2} dashed />
           <FunctionCurve fn={tangent} color="hsl(var(--chart-2))" strokeWidth={2.5} />

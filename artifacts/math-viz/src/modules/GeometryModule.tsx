@@ -779,6 +779,7 @@ export function GeometryModule() {
       case "rhombus": return renderRhombus();
       case "sector": return renderSector();
       case "polygon": return renderPolygon();
+      default: return renderCircle();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -788,6 +789,11 @@ export function GeometryModule() {
   ]);
 
   const shapeKeys = Object.keys(SHAPE_LABELS) as Shape[];
+
+  // Fixed range for all geometry shapes
+  const range = useMemo(() => {
+    return { xMin: -15, xMax: 15, yMin: -15, yMax: 15 };
+  }, []);
 
   return (
     <ModuleShell
@@ -820,7 +826,7 @@ export function GeometryModule() {
       plot={
         <Plot
           height={520}
-          range={{ xMin: -10, xMax: 10, yMin: -10, yMax: 10 }}
+          range={range}
           interactive
         >
           {cur.plot}

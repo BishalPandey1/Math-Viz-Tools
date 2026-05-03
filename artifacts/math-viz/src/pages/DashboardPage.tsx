@@ -1,7 +1,8 @@
 import { useAuth, getInitials } from "@/lib/auth";
+import { useState } from "react";
 import {
   LineChart, Sigma, Waves, TrendingUp, Shapes, Move3d, Parentheses,
-  LogOut, Calendar, BookOpen, Trophy, ChevronRight, Calculator, Compass, FolderOpen,
+  LogOut, Calendar, BookOpen, Trophy, ChevronRight, Calculator, Compass, FolderOpen, X, Lightbulb,
 } from "lucide-react";
 
 type ModuleId = "linear" | "quadratic" | "trig" | "derivative" | "integral" | "geometry" | "transform";
@@ -98,6 +99,7 @@ const GROUP_COLORS: Record<string, string> = {
 
 export function DashboardPage({ onNavigate }: { onNavigate: (id: ModuleId) => void }) {
   const { user, logout } = useAuth();
+  const [showHint, setShowHint] = useState(true);
 
   if (!user) return null;
 
@@ -141,6 +143,26 @@ export function DashboardPage({ onNavigate }: { onNavigate: (id: ModuleId) => vo
         </header>
 
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8 space-y-8">
+          {showHint && (
+            <div className="glass rounded-2xl p-4 sm:p-6 border border-primary/20 bg-gradient-to-r from-primary/5 to-transparent flex items-start gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Lightbulb className="w-5 h-5 text-primary shrink-0" />
+                  <h3 className="font-semibold text-sm">How to use this project</h3>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  <strong>Select any module</strong> below to start exploring. <strong>Use the sliders</strong> to change parameters and watch the diagram update in real time. <strong>Scroll on numbers</strong> to nudge values (hold Shift for ×10). <strong>Drag the diagram</strong> to pan and scroll to zoom. Click <strong>Dashboard</strong> in the header to return here.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowHint(false)}
+                className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                aria-label="Close hint"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          )}
           {/* Profile hero */}
           <div className="glass rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start sm:items-center">
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/60 text-primary-foreground grid place-items-center text-3xl font-bold shadow-lg shrink-0">

@@ -24,6 +24,7 @@ export function SliderControl({ label, value, onChange, min, max, step = 0.01, f
       className="space-y-2"
       onWheel={(e) => {
         e.preventDefault();
+        e.stopPropagation();
         nudge(e.deltaY < 0 ? 1 : -1, e.shiftKey);
       }}
     >

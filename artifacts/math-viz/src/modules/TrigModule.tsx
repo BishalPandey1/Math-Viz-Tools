@@ -21,6 +21,17 @@ export function TrigModule() {
   const period = (2 * Math.PI) / Math.abs(B || 0.0001);
   const phaseShift = -C / (B || 0.0001);
 
+  // Auto-scale range based on parameters
+  const range = useMemo(() => {
+    const absA = Math.abs(A) || 1;
+    const absB = Math.abs(B) || 1;
+    const absD = Math.abs(D) || 0;
+    const xSpan = Math.max(period * 2.5, 6);
+    const yMin = -absA - absD - 2;
+    const yMax = absA - absD + 2;
+    return { xMin: -xSpan, xMax: xSpan, yMin, yMax };
+  }, [A, B, D, period]);
+
   const steps: SolutionStep[] = useMemo(
     () => [
       { text: "Begin from the general sinusoid in the form y = A·sin(Bx + C) + D.", formula: "y = A·sin(B·x + C) + D" },
@@ -71,7 +82,7 @@ export function TrigModule() {
         </>
       }
       plot={
-        <Plot height={460} interactive range={{ xMin: -10, xMax: 10, yMin: -8, yMax: 8 }}>
+        <Plot height={460} interactive range={range}>
           <HLine y={D} color="hsl(var(--chart-4))" />
           <HLine y={D + Math.abs(A)} color="hsl(var(--chart-1))" />
           <HLine y={D - Math.abs(A)} color="hsl(var(--chart-1))" />

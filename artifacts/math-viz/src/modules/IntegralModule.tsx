@@ -78,6 +78,14 @@ export function IntegralModule() {
 
   const f = FUNCTIONS[fnKey].fn;
 
+  // Auto-scale range based on bounds
+  const range = useMemo(() => {
+    const span = Math.max(Math.abs(a), Math.abs(b), 2) + 2;
+    const yMax = Math.max(f(a), f(b), f((a + b) / 2)) + 3;
+    const yMin = Math.min(f(a), f(b), f((a + b) / 2)) - 3;
+    return { xMin: -span, xMax: span, yMin, yMax };
+  }, [f, a, b]);
+
   const { riemann, exact } = useMemo(() => {
     const dx = (b - a) / n;
     let sum = 0;
@@ -180,7 +188,7 @@ export function IntegralModule() {
         </>
       }
       plot={
-        <Plot height={460} interactive range={{ xMin: -10, xMax: 10, yMin: -4, yMax: 12 }}>
+        <Plot height={460} interactive range={range}>
           <RiemannBars fn={f} a={a} b={b} n={n} method={method} />
           <FunctionCurve fn={f} color="hsl(var(--chart-1))" strokeWidth={3} />
           <VLine x={a} color="hsl(var(--chart-3))" dashed={false} />

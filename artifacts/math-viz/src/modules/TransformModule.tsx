@@ -22,6 +22,20 @@ export function TransformModule() {
     c * x + d * y,
   ]);
 
+  // Auto-scale range based on transformation magnitude
+  const range = useMemo(() => {
+    const points = [...original, ...transformed];
+    const xs = points.map(p => p[0]);
+    const ys = points.map(p => p[1]);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const spanX = Math.max(Math.abs(minX), Math.abs(maxX), 5) + 2;
+    const spanY = Math.max(Math.abs(minY), Math.abs(maxY), 5) + 2;
+    return { xMin: -spanX, xMax: spanX, yMin: -spanY, yMax: spanY };
+  }, [a, b, c, d]);
+
   const det = a * d - b * c;
   const i_hat: [number, number] = [a, c];
   const j_hat: [number, number] = [b, d];
@@ -55,7 +69,7 @@ export function TransformModule() {
         </>
       }
       plot={
-        <Plot height={520} interactive range={{ xMin: -10, xMax: 10, yMin: -10, yMax: 10 }}>
+        <Plot height={520} interactive range={range}>
           {/* Original shape */}
           <Polygon points={original} fill="hsl(var(--muted-foreground))" stroke="hsl(var(--muted-foreground))" opacity={0.15} strokeWidth={1.5} />
           {/* Transformed shape */}

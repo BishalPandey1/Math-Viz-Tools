@@ -19,6 +19,15 @@ export function LinearModule() {
   const xIntercept = m !== 0 ? -b / m : NaN;
   const angleDeg = (Math.atan(m) * 180) / Math.PI;
 
+  // Auto-scale range based on parameters to keep line centered
+  const range = useMemo(() => {
+    const margin = 3;
+    const absM = Math.abs(m) || 1;
+    const absB = Math.abs(b) || 1;
+    const maxVal = Math.max(absM * 10, absB * 5, 10);
+    return { xMin: -maxVal, xMax: maxVal, yMin: -maxVal - absB, yMax: maxVal + absB };
+  }, [m, b]);
+
   const steps: SolutionStep[] = useMemo(() => {
     const arr: SolutionStep[] = [
       {
@@ -72,7 +81,7 @@ export function LinearModule() {
         </>
       }
       plot={
-        <Plot height={460} interactive>
+        <Plot height={460} interactive range={range}>
           <FunctionCurve fn={fn} color="hsl(var(--chart-1))" strokeWidth={3} />
           <PointDot x={0} y={b} color="hsl(var(--accent))" label={`y-int (0, ${b.toFixed(2)})`} />
           {Number.isFinite(xIntercept) && Math.abs(xIntercept) <= 10 && (
