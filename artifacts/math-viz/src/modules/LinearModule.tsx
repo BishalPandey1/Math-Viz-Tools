@@ -64,8 +64,8 @@ export function LinearModule() {
       formula={<span>y = <span className="text-[hsl(var(--chart-1))]">m</span>x + <span className="text-[hsl(var(--accent))]">b</span></span>}
       controls={
         <>
-          <SliderControl label="Slope" formula="m" value={m} onChange={setM} min={-5} max={5} step={0.1} color="hsl(var(--chart-1))" />
-          <SliderControl label="Y-Intercept" formula="b" value={b} onChange={setB} min={-8} max={8} step={0.1} color="hsl(var(--accent))" />
+          <SliderControl label="Slope" formula="m" value={m} onChange={setM} min={-1000} max={1000} step={0.1} color="hsl(var(--chart-1))" />
+          <SliderControl label="Y-Intercept" formula="b" value={b} onChange={setB} min={-1000} max={1000} step={0.1} color="hsl(var(--accent))" />
           <div className="text-xs text-muted-foreground pt-3 border-t">
             Try setting <span className="font-mono">m = 0</span> for a horizontal line, or <span className="font-mono">b = 0</span> to make the line pass through the origin. Hover any number and scroll to nudge.
           </div>
@@ -90,8 +90,8 @@ export function LinearModule() {
             label="Slope (m)"
             value={m}
             onChange={setM}
-            min={-50}
-            max={50}
+            min={-999999}
+            max={999999}
             step={0.1}
             format={(v) => v.toFixed(3)}
             hint="Click to type · scroll to nudge"
@@ -100,8 +100,8 @@ export function LinearModule() {
             label="Angle with x-axis"
             value={angleDeg}
             onChange={(deg) => setM(Math.tan((deg * Math.PI) / 180))}
-            min={-89}
-            max={89}
+            min={-89.9}
+            max={89.9}
             step={1}
             suffix="°"
             hint="Type an angle; the slope updates"
@@ -110,8 +110,8 @@ export function LinearModule() {
             label="Y-Intercept (b)"
             value={b}
             onChange={setB}
-            min={-100}
-            max={100}
+            min={-999999}
+            max={999999}
             step={0.1}
             accent="hsl(var(--accent))"
             hint="Click to type · scroll to nudge"
@@ -122,6 +122,8 @@ export function LinearModule() {
             onChange={(xi) => {
               if (m !== 0) setB(-m * xi);
             }}
+            min={-999999}
+            max={999999}
             step={0.1}
             accent="hsl(var(--chart-3))"
             hint={m === 0 ? "Set a non-zero slope first" : "Type a new x-intercept; b updates"}

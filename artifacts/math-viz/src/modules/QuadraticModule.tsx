@@ -75,9 +75,9 @@ export function QuadraticModule() {
       }
       controls={
         <>
-          <SliderControl label="Coefficient" formula="a" value={a} onChange={setA} min={-3} max={3} step={0.1} color="hsl(var(--chart-1))" />
-          <SliderControl label="Coefficient" formula="b" value={b} onChange={setB} min={-8} max={8} step={0.1} color="hsl(var(--accent))" />
-          <SliderControl label="Constant" formula="c" value={c} onChange={setC} min={-8} max={8} step={0.1} color="hsl(var(--chart-3))" />
+          <SliderControl label="Coefficient" formula="a" value={a} onChange={setA} min={-1000} max={1000} step={0.1} color="hsl(var(--chart-1))" />
+          <SliderControl label="Coefficient" formula="b" value={b} onChange={setB} min={-1000} max={1000} step={0.1} color="hsl(var(--accent))" />
+          <SliderControl label="Constant" formula="c" value={c} onChange={setC} min={-1000} max={1000} step={0.1} color="hsl(var(--chart-3))" />
           <div className="text-xs text-muted-foreground pt-3 border-t">
             The vertex is at <span className="font-mono">(-b/2a, f(-b/2a))</span>. Roots exist when the discriminant <span className="font-mono">b²-4ac ≥ 0</span>.
           </div>
@@ -98,9 +98,9 @@ export function QuadraticModule() {
       insights={
         <InsightCard>
           <Stat label="Equation" value={`${a.toFixed(2)}x² + ${b.toFixed(2)}x + ${c.toFixed(2)}`} accent="hsl(var(--chart-1))" />
-          <EditableStat label="a (curvature)" value={a} onChange={setA} min={-50} max={50} step={0.1} accent="hsl(var(--chart-1))" hint="Click to type · scroll to nudge" />
-          <EditableStat label="b (linear term)" value={b} onChange={setB} min={-100} max={100} step={0.1} accent="hsl(var(--accent))" hint="Click to type · scroll to nudge" />
-          <EditableStat label="c (Y-Intercept)" value={c} onChange={setC} min={-100} max={100} step={0.1} accent="hsl(var(--accent))" hint="Click to type · scroll to nudge" />
+          <EditableStat label="a (curvature)" value={a} onChange={setA} min={-999999} max={999999} step={0.1} accent="hsl(var(--chart-1))" hint="Click to type · scroll to nudge" />
+          <EditableStat label="b (linear term)" value={b} onChange={setB} min={-999999} max={999999} step={0.1} accent="hsl(var(--accent))" hint="Click to type · scroll to nudge" />
+          <EditableStat label="c (Y-Intercept)" value={c} onChange={setC} min={-999999} max={999999} step={0.1} accent="hsl(var(--accent))" hint="Click to type · scroll to nudge" />
           <Stat label="Opens" value={opens} />
           <Stat label="Vertex" value={`(${vertexX.toFixed(2)}, ${vertexY.toFixed(2)})`} accent="hsl(var(--chart-2))" />
           <EditableStat
@@ -109,6 +109,8 @@ export function QuadraticModule() {
             onChange={(x) => {
               if (a !== 0) setB(-2 * a * x);
             }}
+            min={-999999}
+            max={999999}
             step={0.1}
             hint={a === 0 ? "Set a non-zero a first" : "Type a new axis x; b is recomputed"}
           />

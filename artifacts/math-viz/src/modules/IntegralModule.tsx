@@ -171,9 +171,9 @@ export function IntegralModule() {
               ))}
             </div>
           </div>
-          <SliderControl label="Lower bound" formula="a" value={a} onChange={(v) => setA(Math.min(v, b - 0.1))} min={-9} max={9} step={0.1} color="hsl(var(--chart-3))" />
-          <SliderControl label="Upper bound" formula="b" value={b} onChange={(v) => setB(Math.max(v, a + 0.1))} min={-9} max={9} step={0.1} color="hsl(var(--chart-4))" />
-          <SliderControl label="Subdivisions" formula="n" value={n} onChange={(v) => setN(Math.round(v))} min={1} max={100} step={1} color="hsl(var(--chart-2))" />
+          <SliderControl label="Lower bound" formula="a" value={a} onChange={(v) => setA(Math.min(v, b - 0.1))} min={-1000} max={1000} step={0.1} color="hsl(var(--chart-3))" />
+          <SliderControl label="Upper bound" formula="b" value={b} onChange={(v) => setB(Math.max(v, a + 0.1))} min={-1000} max={1000} step={0.1} color="hsl(var(--chart-4))" />
+          <SliderControl label="Subdivisions" formula="n" value={n} onChange={(v) => setN(Math.round(v))} min={1} max={10000} step={1} color="hsl(var(--chart-2))" />
           <div className="text-xs text-muted-foreground pt-3 border-t">
             Increase <span className="font-mono">n</span> and the error shrinks fast. The midpoint and trapezoid methods are usually more accurate than left/right sums.
           </div>
@@ -190,9 +190,9 @@ export function IntegralModule() {
       insights={
         <InsightCard>
           <Stat label="Function" value={FUNCTIONS[fnKey].expr} accent="hsl(var(--chart-1))" />
-          <EditableStat label="Lower bound (a)" value={a} onChange={(v) => setA(Math.min(v, b - 0.01))} step={0.1} accent="hsl(var(--chart-3))" hint="Click to type · scroll to nudge" />
-          <EditableStat label="Upper bound (b)" value={b} onChange={(v) => setB(Math.max(v, a + 0.01))} step={0.1} accent="hsl(var(--chart-4))" hint="Click to type · scroll to nudge" />
-          <EditableStat label="Subdivisions (n)" value={n} onChange={(v) => setN(Math.max(1, Math.round(v)))} min={1} max={1000} step={1} format={(v) => `${Math.round(v)}`} accent="hsl(var(--chart-2))" hint="Click to type · scroll to nudge" />
+          <EditableStat label="Lower bound (a)" value={a} onChange={(v) => setA(Math.min(v, b - 0.01))} min={-999999} max={999999} step={0.1} accent="hsl(var(--chart-3))" hint="Click to type · scroll to nudge" />
+          <EditableStat label="Upper bound (b)" value={b} onChange={(v) => setB(Math.max(v, a + 0.01))} min={-999999} max={999999} step={0.1} accent="hsl(var(--chart-4))" hint="Click to type · scroll to nudge" />
+          <EditableStat label="Subdivisions (n)" value={n} onChange={(v) => setN(Math.max(1, Math.round(v)))} min={1} max={100000} step={1} format={(v) => `${Math.round(v)}`} accent="hsl(var(--chart-2))" hint="Click to type · scroll to nudge" />
           <Stat label="Method" value={method} accent="hsl(var(--chart-2))" />
           <Stat label="Riemann sum" value={riemann.toFixed(4)} accent="hsl(var(--chart-2))" />
           <Stat label="True area (≈)" value={exact.toFixed(4)} accent="hsl(var(--chart-1))" />

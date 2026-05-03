@@ -87,8 +87,8 @@ export function DerivativeModule() {
               ))}
             </select>
           </div>
-          <SliderControl label="Point" formula="x₀" value={x0} onChange={setX0} min={-6} max={6} step={0.05} color="hsl(var(--chart-2))" />
-          <SliderControl label="Step" formula="h" value={h} onChange={setH} min={0.01} max={3} step={0.01} color="hsl(var(--chart-4))" />
+          <SliderControl label="Point" formula="x₀" value={x0} onChange={setX0} min={-1000} max={1000} step={0.05} color="hsl(var(--chart-2))" />
+          <SliderControl label="Step" formula="h" value={h} onChange={setH} min={0.001} max={1000} step={0.01} color="hsl(var(--chart-4))" />
           <div className="text-xs text-muted-foreground pt-3 border-t">
             Drag <span className="font-mono">h</span> toward 0 — the secant slope converges to the true derivative. The tangent line is the limit of all secants.
           </div>
@@ -110,11 +110,11 @@ export function DerivativeModule() {
         <InsightCard>
           <Stat label="Function" value={FUNCTIONS[fnKey].expr} accent="hsl(var(--chart-1))" />
           <Stat label="Derivative" value={FUNCTIONS[fnKey].deriv} accent="hsl(var(--chart-2))" />
-          <EditableStat label="Point x₀" value={x0} onChange={setX0} min={-100} max={100} step={0.05} accent="hsl(var(--chart-2))" hint="Click to type · scroll to nudge" />
+          <EditableStat label="Point x₀" value={x0} onChange={setX0} min={-999999} max={999999} step={0.05} accent="hsl(var(--chart-2))" hint="Click to type · scroll to nudge" />
           <Stat label="f(x₀)" value={y0.toFixed(4)} accent="hsl(var(--chart-2))" />
           <Stat label="Tangent slope f′(x₀)" value={slopeExact.toFixed(4)} accent="hsl(var(--chart-2))" />
           <Stat label="Secant slope" value={slopeSecant.toFixed(4)} accent="hsl(var(--chart-4))" />
-          <EditableStat label="Step h" value={h} onChange={setH} min={0.001} max={10} step={0.01} format={(v) => v.toFixed(3)} hint="Click to type · scroll to nudge" />
+          <EditableStat label="Step h" value={h} onChange={setH} min={0.001} max={999999} step={0.01} format={(v) => v.toFixed(3)} hint="Click to type · scroll to nudge" />
           <Stat label="Approximation error" value={Math.abs(slopeExact - slopeSecant).toExponential(2)} />
         </InsightCard>
       }

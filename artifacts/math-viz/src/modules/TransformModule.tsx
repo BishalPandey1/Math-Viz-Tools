@@ -40,10 +40,10 @@ export function TransformModule() {
       }
       controls={
         <>
-          <SliderControl label="a" value={a} onChange={setA} min={-3} max={3} step={0.05} color="hsl(var(--chart-1))" />
-          <SliderControl label="b" value={b} onChange={setB} min={-3} max={3} step={0.05} color="hsl(var(--accent))" />
-          <SliderControl label="c" value={c} onChange={setC} min={-3} max={3} step={0.05} color="hsl(var(--chart-3))" />
-          <SliderControl label="d" value={d} onChange={setD} min={-3} max={3} step={0.05} color="hsl(var(--chart-4))" />
+          <SliderControl label="a" value={a} onChange={setA} min={-1000} max={1000} step={0.05} color="hsl(var(--chart-1))" />
+          <SliderControl label="b" value={b} onChange={setB} min={-1000} max={1000} step={0.05} color="hsl(var(--accent))" />
+          <SliderControl label="c" value={c} onChange={setC} min={-1000} max={1000} step={0.05} color="hsl(var(--chart-3))" />
+          <SliderControl label="d" value={d} onChange={setD} min={-1000} max={1000} step={0.05} color="hsl(var(--chart-4))" />
           <div className="grid grid-cols-2 gap-2 pt-3 border-t">
             <button onClick={() => { setA(1); setB(0); setC(0); setD(1); }} className="px-2 py-1.5 text-xs rounded-md border border-border bg-card hover-elevate">Identity</button>
             <button onClick={() => { setA(0); setB(-1); setC(1); setD(0); }} className="px-2 py-1.5 text-xs rounded-md border border-border bg-card hover-elevate">Rotate 90°</button>
@@ -71,10 +71,10 @@ export function TransformModule() {
       insights={
         <InsightCard>
           <Stat label="Matrix" value={`[[${a.toFixed(2)}, ${b.toFixed(2)}], [${c.toFixed(2)}, ${d.toFixed(2)}]]`} accent="hsl(var(--chart-1))" />
-          <EditableStat label="a (M₁₁)" value={a} onChange={setA} min={-50} max={50} accent="hsl(var(--chart-1))" />
-          <EditableStat label="b (M₁₂)" value={b} onChange={setB} min={-50} max={50} accent="hsl(var(--accent))" />
-          <EditableStat label="c (M₂₁)" value={c} onChange={setC} min={-50} max={50} accent="hsl(var(--chart-3))" />
-          <EditableStat label="d (M₂₂)" value={d} onChange={setD} min={-50} max={50} accent="hsl(var(--chart-4))" />
+          <EditableStat label="a (M₁₁)" value={a} onChange={setA} min={-999999} max={999999} step={0.05} accent="hsl(var(--chart-1))" />
+          <EditableStat label="b (M₁₂)" value={b} onChange={setB} min={-999999} max={999999} step={0.05} accent="hsl(var(--accent))" />
+          <EditableStat label="c (M₂₁)" value={c} onChange={setC} min={-999999} max={999999} step={0.05} accent="hsl(var(--chart-3))" />
+          <EditableStat label="d (M₂₂)" value={d} onChange={setD} min={-999999} max={999999} step={0.05} accent="hsl(var(--chart-4))" />
           <Stat label="Determinant" value={det.toFixed(3)} accent={det < 0 ? "hsl(var(--destructive))" : "hsl(var(--chart-1))"} />
           <Stat label="Area scale" value={`×${Math.abs(det).toFixed(3)}`} />
           <Stat label="Orientation" value={det >= 0 ? "preserved" : "flipped"} />

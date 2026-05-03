@@ -143,19 +143,19 @@ export function GeometryModule() {
       ),
       insights: (
         <>
-          <EditableStat label="Center x" value={cx} onChange={setCx} min={-100} max={100} accent="hsl(var(--chart-2))" />
-          <EditableStat label="Center y" value={cy} onChange={setCy} min={-100} max={100} accent="hsl(var(--chart-2))" />
-          <EditableStat label="Radius" value={cr} onChange={setCr} min={0.01} max={100} accent="hsl(var(--chart-1))" />
-          <EditableStat label="Diameter" value={d} onChange={(v) => setCr(v / 2)} min={0.02} max={200} />
-          <EditableStat label="Circumference" value={circ} onChange={(c) => setCr(c / (2 * Math.PI))} min={0.01} max={1000} />
-          <EditableStat label="Area" value={area} onChange={(A) => A > 0 && setCr(Math.sqrt(A / Math.PI))} min={0.001} max={100000} accent="hsl(var(--chart-1))" />
+          <EditableStat label="Center x" value={cx} onChange={setCx} min={-999999} max={999999} step={0.1} accent="hsl(var(--chart-2))" />
+          <EditableStat label="Center y" value={cy} onChange={setCy} min={-999999} max={999999} step={0.1} accent="hsl(var(--chart-2))" />
+          <EditableStat label="Radius" value={cr} onChange={setCr} min={0.01} max={999999} step={0.05} accent="hsl(var(--chart-1))" />
+          <EditableStat label="Diameter" value={d} onChange={(v) => setCr(v / 2)} min={0.02} max={999999} step={0.05} />
+          <EditableStat label="Circumference" value={circ} onChange={(c) => setCr(c / (2 * Math.PI))} min={0.01} max={999999} step={0.1} />
+          <EditableStat label="Area" value={area} onChange={(A) => A > 0 && setCr(Math.sqrt(A / Math.PI))} min={0.001} max={999999999} step={1} accent="hsl(var(--chart-1))" />
         </>
       ),
       controls: (
         <>
-          <SliderControl label="Radius" formula="r" value={cr} onChange={setCr} min={0.5} max={9} step={0.05} color="hsl(var(--chart-1))" />
-          <SliderControl label="Center x" formula="cx" value={cx} onChange={setCx} min={-9} max={9} step={0.1} />
-          <SliderControl label="Center y" formula="cy" value={cy} onChange={setCy} min={-9} max={9} step={0.1} />
+          <SliderControl label="Radius" formula="r" value={cr} onChange={setCr} min={0.5} max={1000} step={0.05} color="hsl(var(--chart-1))" />
+          <SliderControl label="Center x" formula="cx" value={cx} onChange={setCx} min={-1000} max={1000} step={0.1} />
+          <SliderControl label="Center y" formula="cy" value={cy} onChange={setCy} min={-1000} max={1000} step={0.1} />
         </>
       ),
       steps,
